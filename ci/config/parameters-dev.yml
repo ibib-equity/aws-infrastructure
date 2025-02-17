@@ -1,0 +1,9 @@
+git-branch: develop
+build-env: dev
+application-deploy-env: dev
+vault-config-path: concourse/data-catalog/aws-infrastructure-dev
+config-server-vault-host: vault-app-dt.duke-energy.com
+vault-url-cc: https://vault-cc-dt.duke-energy.com:8200
+environment-suffix: -dev
+cc-env: dt
+aws-account-id: "074464991624"

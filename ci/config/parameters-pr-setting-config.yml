@@ -1,0 +1,6 @@
+application-name: github
+git-branch: feature/sbx # change to develop / main when available
+git-uri: https://github.com/dukeenergy-corp/datacat-data-catalog-python.git
+main-pipeline-name: github-pull-requests-setter
+pr-pipeline-name: github-pull-requests
+team-name: data-catalog

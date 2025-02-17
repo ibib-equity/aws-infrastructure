@@ -1,0 +1,484 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CU Library API",
+    "description": "REST API for the CU Library",
+    "version": "${version}"
+  },
+  "servers": [
+    {
+      "url": "https://data.cdassetsandworkmanagement.{env}.api.duke-energy.app"
+    }
+  ],
+  "tags": [
+    {
+      "name": "cu-library-resources",
+      "description": "Endpoints for getting cu library data"
+    }
+  ],
+  "paths": {
+    "/cusByName": {
+      "get": {
+        "tags": [
+          "cu-library-resources"
+        ],
+        "summary": "Returns list of cu libraries by cu name and status",
+        "parameters": [
+          {
+            "name": "cuName",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cuStatus",
+            "in": "query",
+            "default": "ACTIVE",
+            "schema": {
+              "type": "array",
+              "enum": [
+                "PENDING","RESTRICTED","INACTIVE","DECOM","PENDOBS","ACTIVE","REMOVEONLY"
+              ]
+            }
+          },
+          {
+            "name": "cuRegion",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name" : "limit",
+            "in" : "query",
+            "default": 100,
+            "schema" : {
+              "type" : "integer"
+            }
+          },
+          {
+            "name" : "offset",
+            "in" : "query",
+            "default": 0,
+            "schema" : {
+              "type" : "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuLibraries"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator" : "Validate query string parameters and headers",
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": "arn:aws:iam::${accountId}:role/apps/equipment-apigw-lambda-invocation-role-${env}",
+          "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${accountId}:function:equipment-culibrary-${env}/invocations"
+        },
+        "security": [
+          {
+            "cu-library-rest-api-token-check": []
+          }
+        ]
+      }
+    },
+    "/cusByDescription": {
+      "get": {
+        "tags": [
+          "cu-library-resources"
+        ],
+        "summary": "Returns list of cu libraries by cu description and status",
+        "parameters": [
+          {
+            "name": "cuDescription",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cuStatus",
+            "in": "query",
+            "default": "ACTIVE",
+            "schema": {
+              "type": "array",
+              "enum": [
+                "PENDING","RESTRICTED","INACTIVE","DECOM","PENDOBS","ACTIVE","REMOVEONLY"
+              ]
+            }
+          },
+          {
+            "name": "cuRegion",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name" : "limit",
+            "in" : "query",
+            "default": 100,
+            "schema" : {
+              "type" : "integer"
+            }
+          },
+          {
+            "name" : "offset",
+            "in" : "query",
+            "default": 0,
+            "schema" : {
+              "type" : "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuLibraries"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator" : "Validate query string parameters and headers",
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": "arn:aws:iam::${accountId}:role/apps/equipment-apigw-lambda-invocation-role-${env}",
+          "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${accountId}:function:equipment-culibrary-${env}/invocations"
+        },
+        "security": [
+          {
+            "cu-library-rest-api-token-check": []
+          }
+        ]
+      }
+    },
+    "/cusByAttribute": {
+      "get": {
+        "tags": [
+          "cu-library-resources"
+        ],
+        "summary": "Returns list of cu libraries by assetAttributeId, cu status and cu region",
+        "parameters": [
+          {
+            "name": "assetAttributeId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cuStatus",
+            "in": "query",
+            "default": "ACTIVE",
+            "schema": {
+              "type": "array",
+              "enum": [
+                "PENDING","RESTRICTED","INACTIVE","DECOM","PENDOBS","ACTIVE","REMOVEONLY"
+              ]
+            }
+          },
+          {
+            "name": "cuRegion",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name" : "limit",
+            "in" : "query",
+            "default": 100,
+            "schema" : {
+              "type" : "integer"
+            }
+          },
+          {
+            "name" : "offset",
+            "in" : "query",
+            "default": 0,
+            "schema" : {
+              "type" : "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuLibraries"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-request-validator" : "Validate query string parameters and headers",
+        "x-amazon-apigateway-integration": {
+          "type": "aws_proxy",
+          "httpMethod": "POST",
+          "credentials": "arn:aws:iam::${accountId}:role/apps/equipment-apigw-lambda-invocation-role-${env}",
+          "uri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${accountId}:function:equipment-culibrary-${env}/invocations"
+        },
+        "security": [
+          {
+            "cu-library-rest-api-token-check": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cu-library-rest-api-token-check": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header",
+        "x-amazon-apigateway-authtype": "custom",
+        "x-amazon-apigateway-authorizer": {
+          "type": "request",
+          "identitySource": "method.request.header.Authorization",
+          "authorizerCredentials": "arn:aws:iam::${accountId}:role/apps/equipment-custom-authorizer-invocation-${env}",
+          "authorizerUri": "arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${region}:${accountId}:function:equipment-authorizer-${env}/invocations",
+          "authorizerResultTtlInSeconds": 300
+        }
+      }
+    },
+    "schemas": {
+      "CuLibraries": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CuLibrary"
+        }
+      },
+      "CuLibrary": {
+        "type": "object",
+        "properties": {
+          "cuName": {
+            "type": "string"
+          },
+          "cuDescription": {
+            "type": "string"
+          },
+          "cuStatus": {
+            "type": "string"
+          },
+          "cuStatusDate": {
+            "type": "string"
+          },
+          "cuHistoryFlag": {
+            "type": "integer"
+          },
+          "cuUom": {
+            "type": "string"
+          },
+          "cuLevelNum": {
+            "type": "integer"
+          },
+          "cuChangeDate": {
+            "type": "string"
+          },
+          "cuStandardsSheet": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CuLibraryAttributes"
+            }
+          }
+        }
+      },
+      "CuLibraryAttributes": {
+        "type": "object",
+        "properties": {
+          "assetAttributeId": {
+            "type": "string"
+          },
+          "alnValue": {
+            "type": "string"
+          },
+          "numValue": {
+            "type": "string"
+          },
+          "attributeDescription": {
+            "type": "string"
+          },
+          "measureUnitAbbreviation": {
+            "type": "string"
+          },
+          "measureUnitDescription": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "body": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "x-amazon-apigateway-gateway-responses" : {
+    "MISSING_AUTHENTICATION_TOKEN" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"User is not authorized to perform this operation - missing authentication token\"}"
+      }
+    },
+    "ACCESS_DENIED" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"Unauthorized. Either no access token was provided or it was invalid\"}"
+      }
+    },
+    "EXPIRED_TOKEN" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"User is not authorized to perform this operation - expired token\"}"
+      }
+    },
+    "INVALID_SIGNATURE" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"User is not authorized to perform this operation - invalid signature\"}"
+      }
+    },
+    "INVALID_API_KEY" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"User is not authorized to perform this operation - invalid api key\"}"
+      }
+    },
+    "WAF_FILTERED" : {
+      "statusCode" : 403,
+      "responseTemplates" : {
+        "application/json" : "{\"message\":\"User is not authorized to perform this operation - WAF Filtered\"}"
+      }
+    }
+  },
+  "x-amazon-apigateway-request-validators" : {
+    "Validate query string parameters and headers" : {
+      "validateRequestParameters" : true,
+      "validateRequestBody" : false
+    }
+  }
+}

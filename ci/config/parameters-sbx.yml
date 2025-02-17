@@ -1,0 +1,9 @@
+git-branch: feature/sbx
+build-env: sbx
+application-deploy-env: sbx
+vault-config-path: concourse/data-catalog/aws-infrastructure-sbx
+config-server-vault-host: vault-app-dt.duke-energy.com
+vault-url-cc: https://vault-cc-dt.duke-energy.com:8200
+environment-suffix: -sbx
+cc-env: dt
+aws-account-id: "639898460760"

@@ -1,0 +1,92 @@
+# The MAIN pipeline
+---
+default-params: &default-params
+  TEAM_NAME: ((team-name))
+  PIPELINE_NAME: ((main-pipeline-name))
+  CONCOURSE_URL: ((concourse-url))
+
+resources:
+  # This repo's src code
+  - name: src
+    type: git
+    icon: git
+    webhook_token: ((webhook-token))
+    source:
+      uri: ((git-uri))
+      branch: ((git-branch))
+      skip_ssl_verification: true
+      username: ((github-readonly-username))
+      password: ((github-readonly-password))
+
+  # ubuntu build image
+  - name: build-image
+    type: registry-image
+    check_every: 30m
+    icon: docker
+    source:
+      repository: ((docker-base-image-host))/((docker-base-image-path))
+      tag: ((docker-base-image-tag))
+
+  # Cron schedule for running the pr fetch.
+  - name: cron-pr-fetch
+    type: time
+    icon: timer
+    source: { interval: 3m }
+
+jobs:
+  # Update pipeline with latest config
+  - name: update-self
+    public: false
+    serial: true
+    plan:
+      - get: src
+        params: { depth: 1 }
+        trigger: true
+      - set_pipeline: self
+        file: src/ci/pipelines/pipeline-setter.yml
+        var_files:
+          - src/ci/config/parameters-pr-setting-config.yml
+
+  - name: generate-pr-data
+    public: false
+    serial: true
+    plan:
+      - in_parallel:
+          fail_fast: true
+          steps:
+            - get: src
+              params: { depth: 1 }
+              passed: [update-self]
+              trigger: true
+            - get: build-image
+              attempts: 3
+              trigger: true
+            - get: cron-pr-fetch
+              trigger: true
+      # Fetch open prs on supported repositories
+      - task: task-fetch-prs
+        image: build-image
+        config:
+          platform: linux
+          inputs: [{ name: src }]
+          outputs: [{ name: pull_requests }]
+          params:
+            GITHUB_CONCOURSE_TOKEN: ((github-concourse-token))
+          run: { path: src/ci/tasks/fetch-prs.sh }
+      - load_var: json
+        file: pull_requests/prs.json
+      - across:
+          - var: pr
+            values: ((.:json))
+            max_in_flight: 2
+        set_pipeline: ((pr-pipeline-name))
+        file: src/ci/pipelines/pipeline-template-prs.yml
+        var_files:
+          - src/ci/config/parameters-pr-setting-config.yml
+        instance_vars:
+          id: PR-((.:pr.number))
+          repo: ((.:pr.repo_name))
+          source: ((.:pr.source_branch))
+          target: ((.:pr.dest_branch))
+        vars:
+          pr: ((.:pr))

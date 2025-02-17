@@ -1,0 +1,285 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "common-prod-api-gateway",
+    "description" : "Proxy to handle requests to crmt lambda functions.",
+    "version" : "2024-06-28T14:18:40Z"
+  },
+  "servers" : [ {
+    "url" : "https://api.common.aws.duke-energy.com"
+  } ],
+  "paths" : {
+    "/geography/area" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "long",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "lat",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Methods" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Headers" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LatLongGetResponseModel"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "gateway-authorizer" : [ ]
+        } ]
+      }
+    },
+    "/geography/boundaries" : {
+      "get" : {
+        "parameters" : [ {
+          "name" : "endTime",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "startTime",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "headers" : {
+              "Access-Control-Allow-Origin" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Methods" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              },
+              "Access-Control-Allow-Headers" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BoundariesGetResponseModel"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "gateway-authorizer" : [ ]
+        } ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "LatLongGetResponseModel" : {
+        "title" : "AreaGet",
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "type" : "object",
+            "properties" : {
+              "currPage" : {
+                "type" : "integer",
+                "default" : 1
+              },
+              "nextPage" : {
+                "type" : "integer",
+                "default" : 2
+              }
+            }
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "landbase_type" : {
+                  "type" : "string",
+                  "default" : "Organizational Area"
+                },
+                "gis_id" : {
+                  "type" : "integer",
+                  "default" : 39573522
+                },
+                "source_system_id" : {
+                  "type" : "integer",
+                  "default" : 144
+                },
+                "gis_name" : {
+                  "type" : "string",
+                  "default" : "B"
+                },
+                "alternate_name" : {
+                  "type" : "string"
+                },
+                "remarks" : {
+                  "type" : "string"
+                },
+                "division" : {
+                  "type" : "string",
+                  "default" : "01"
+                },
+                "landbase_geometry" : {
+                  "type" : "string",
+                  "default" : "CURVEPOLYGON Z (COMPOUNDCURVE Z ((101.05556365848207 ....."
+                },
+                "landbase_geometry_geojson" : {
+                  "type" : "string",
+                  "default" : "{\"type\":\"Polygon\",\"coordinates\":[[[-79.661631746,36.541753261],[-79.659287349,36.541731337],[-79.657438143,36.541757542]}"
+                }
+              }
+            }
+          }
+        },
+        "description" : "A schema for response based on organization area"
+      },
+      "BoundariesGetResponseModel" : {
+        "title" : "BoundariesGet",
+        "type" : "object",
+        "properties" : {
+          "metadata" : {
+            "type" : "object",
+            "properties" : {
+              "currPage" : {
+                "type" : "integer",
+                "default" : 1
+              },
+              "nextPage" : {
+                "type" : "integer",
+                "default" : 2
+              }
+            }
+          },
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "landbase_type" : {
+                  "type" : "string",
+                  "default" : "Organizational Area"
+                },
+                "gis_id" : {
+                  "type" : "integer",
+                  "default" : 39573522
+                },
+                "source_system_id" : {
+                  "type" : "integer",
+                  "default" : 144
+                },
+                "gis_name" : {
+                  "type" : "string",
+                  "default" : "B"
+                },
+                "alternate_name" : {
+                  "type" : "string"
+                },
+                "remarks" : {
+                  "type" : "string"
+                },
+                "division" : {
+                  "type" : "string",
+                  "default" : "01"
+                },
+                "action_ind" : {
+                  "type" : "string",
+                  "default" : "I"
+                },
+                "create_timestamp" : {
+                  "type" : "string",
+                  "default" : "2023-08-29 12:22:45.010203+00:00"
+                },
+                "last_update_timestamp" : {
+                  "type" : "string",
+                  "default" : "2023-08-29 12:22:45.010203+00:00"
+                },
+                "landbase_geometry_geojson" : {
+                  "type" : "string",
+                  "default" : "{\"type\":\"Polygon\",\"coordinates\":[[[-79.661631746,36.541753261],[-79.659287349,36.541731337],[-79.657438143,36.541757542]}"
+                },
+                "landbase_geometry" : {
+                  "type" : "string",
+                  "default" : "POLYGON((-79.66163174600759 36.541753261375064,-79.65928734893188 36.541731337052646,-79.65743814279345 36.54175754238826,-79.6555774945263 36.54173656546726))"
+                },
+                "deleted_indicator" : {
+                  "type" : "string",
+                  "default" : "0"
+                },
+                "curr_ind" : {
+                  "type" : "integer",
+                  "default" : 1
+                }
+              }
+            }
+          }
+        },
+        "description" : "A schema for response based on boundaries"
+      }
+    },
+    "securitySchemes" : {
+      "gateway-authorizer" : {
+        "type" : "apiKey",
+        "name" : "Authorization",
+        "in" : "header",
+        "x-amazon-apigateway-authtype" : "custom"
+      }
+    }
+  }
+}

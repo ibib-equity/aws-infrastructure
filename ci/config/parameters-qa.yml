@@ -1,0 +1,9 @@
+git-branch: release
+build-env: qa
+application-deploy-env: qa
+vault-config-path: concourse/data-catalog/aws-infrastructure-qa
+config-server-vault-host: vault-app-qa.duke-energy.com
+vault-url-cc: https://vault-cc-qa.duke-energy.com:8200
+environment-suffix: -qa
+cc-env: qa
+aws-account-id: "705226320460"

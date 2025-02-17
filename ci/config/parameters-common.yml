@@ -1,0 +1,23 @@
+product-name: data-catalog
+application-name: data-catalog
+product-prefix: data-catalog
+git-uri: https://github.com/dukeenergy-corp/datacat-data-catalog-python.git
+cc-team: data-catalog
+web-build-type: python
+aws-region: us-east-1
+
+pkg-version: 12.16.1
+checkmarx-scan: true
+
+disable_destroy: false
+
+repo-task-app-scan-uri: https://bitbucketp.duke-energy.com/scm/cc/task-app-scan.git
+repo-task-app-scan-version: 5.x
+
+# shared task for postman tests for dev / qa
+repo-task-postman-test-uri: https://bitbucketp.duke-energy.com/scm/cc/task-postman-test.git
+repo-task-postman-test-version: master
+
+# shared task for bitbucket build notifications for dev / qa
+repo-task-build-notification-uri: https://bitbucketp.duke-energy.com/scm/cast/task-build-notification.git
+repo-task-build-notification-version: master

@@ -1,0 +1,80 @@
+groups:
+  - name: ((application-name))-deploy
+    jobs:
+      - ((application-name))-scan
+
+resources:
+  - name: src
+    type: git
+    icon: git
+    source:
+      {
+        uri: ((git-uri)),
+        branch: ((git-branch)),
+        skip_ssl_verification: true,
+        username: ((github-readonly-username)),
+        password: ((github-readonly-password)),
+      }
+  - name: build-image
+    type: registry-image
+    check_every: 10m
+    icon: docker
+    source:
+      repository: ((docker-base-image-host))/((docker-base-image-path))
+      tag: ((docker-base-image-tag))
+  - name: repo-task-app-scan
+    type: git
+    icon: cloud-lock
+    check_every: 30m
+    source:
+      {
+        uri: ((repo-task-app-scan-uri)),
+        branch: ((repo-task-app-scan-version)),
+        skip_ssl_verification: true,
+      }
+  - name: repo-task-build-notification
+    type: git
+    icon: cloud-lock
+    check_every: 30m
+    source:
+      {
+        uri: ((repo-task-build-notification-uri)),
+        branch: ((repo-task-build-notification-version)),
+        skip_ssl_verification: true,
+      }
+
+jobs:
+  - name: ((application-name))-scan
+    public: false
+    serial: true
+    plan:
+      - in_parallel:
+          fail_fast: true
+          steps:
+            - get: build-image
+            - get: src
+              params: { depth: 1 }
+              trigger: true
+            - get: repo-task-app-scan
+              params: { depth: 1 }
+      - task: task-app-scan
+        timeout: 1h
+        image: build-image
+        input_mapping:
+          { source-repo: src, repo-task-app-scan: repo-task-app-scan }
+        config:
+          platform: linux
+          inputs: [{ name: source-repo }, { name: repo-task-app-scan }]
+          outputs: [{ name: artifacts }]
+          params:
+            application_name: ((application-name))
+            build_env: ((build-env))
+            build_type: ((web-build-type))
+            branch: ((git-branch))
+            checkmarx_scan: ((checkmarx-scan))
+            code_scan_token: ((sonarqube-scan-token))
+            code_scan_user: ((checkmarx-scan-username))
+            code_scan_pass: ((checkmarx-scan-password))
+            pkg_version: ((pkg-version))
+            product: ((product-name))
+          run: { path: repo-task-app-scan/run.sh }

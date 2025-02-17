@@ -1,0 +1,119 @@
+# Pipeline to be set up on PR update
+---
+default-params: &default-params
+  TEAM_NAME: ((team-name))
+  PIPELINE_NAME: ((pr-pipeline-name))
+
+github-status-params: &github-status-params
+  BRANCH_SRC_NAME: ((pr.source_branch))
+  GITHUB_CONCOURSE_TOKEN: ((github-concourse-token))
+  INSTANCE_VARS: "repo=((pr.repo_name)) target=((pr.dest_branch)) id=PR-((pr.number)) source=((pr.source_branch))"
+  PIPELINE_NAME: ((pr-pipeline-name))
+  PRODUCT_NAME: ((team-name))
+  PR_NUMBER: ((pr.number))
+  REPO_NAME: ((pr.repo_name))
+
+resources:
+  - name: ci
+    type: git
+    icon: git
+    source:
+      uri: ((git-uri))
+      username: ((github-readonly-username))
+      password: ((github-readonly-password))
+      skip_ssl_verification: true
+      branch: ((git-branch))
+
+  - name: src
+    type: git
+    icon: git
+    webhook_token: ((webhook-token))
+    source:
+      uri: ((pr.clone_url))
+      username: ((github-readonly-username))
+      password: ((github-readonly-password))
+      skip_ssl_verification: true
+      branch: ((pr.source_branch))
+      version_depth: 1
+
+  - name: build-image
+    type: registry-image
+    check_every: 30m
+    icon: docker
+    source:
+      repository: ((docker-base-image-host))/((docker-base-image-path))
+      tag: ((docker-base-image-tag))
+
+jobs:
+  - name: test
+    public: false
+    serial: true
+    plan:
+      - in_parallel:
+          fail_fast: true
+          steps:
+            - get: ci
+              params: { depth: 1 }
+              trigger: false
+            - get: build-image
+            - get: src
+              params: { depth: 1 }
+              trigger: true
+
+      - in_parallel:
+          fail_fast: true
+          steps:
+            # Add pending status to pr
+            - task: pending-status
+              image: build-image
+              config:
+                platform: linux
+                inputs: [{ name: ci }]
+                params:
+                  <<: *github-status-params
+                  STATUS: "pending"
+                  DESCRIPTION: "Tests are in progress."
+                run: { path: ci/ci/tasks/status-post-pr.sh }
+
+      # Run tests
+      - task: test
+        image: build-image
+        input_mapping: { source-repo: src }
+        config:
+          platform: linux
+          inputs: [{ name: source-repo }, { name: ci }]
+          params:
+            REPO_NAME: ((pr.repo_name))
+            BRANCH_DEST_NAME: ((pr.dest_branch))
+            BRANCH_SRC_NAME: ((pr.source_branch))
+            GITHUB_USERNAME: ((github-readonly-username))
+            GITHUB_PASSWORD: ((github-readonly-password))
+          run: { path: ci/ci/tasks/run-pr.sh }
+
+    # On success update status to success
+    on_success:
+      do:
+        - task: success-status
+          image: build-image
+          config:
+            platform: linux
+            inputs: [{ name: ci }]
+            params:
+              <<: *github-status-params
+              STATUS: "success"
+              DESCRIPTION: "Tests ran successfully."
+            run: { path: ci/ci/tasks/status-post-pr.sh }
+
+    # On failure, update status to failure
+    on_failure:
+      do:
+        - task: failure-status
+          image: build-image
+          config:
+            platform: linux
+            inputs: [{ name: ci }]
+            params:
+              <<: *github-status-params
+              STATUS: "failure"
+              DESCRIPTION: "Tests were unsuccessful."
+            run: { path: ci/ci/tasks/status-post-pr.sh }
